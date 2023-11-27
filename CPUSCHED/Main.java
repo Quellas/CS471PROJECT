@@ -39,17 +39,17 @@ public class Main {
                 String[] parts = line.split("\t");
     
             if (parts.length == 4) { // Ensure there are enough fields in the line
-            int id = Integer.parseInt(parts[0]);
-            int arrivalTime = Integer.parseInt(parts[1]);
-            int burstTime = Integer.parseInt(parts[2]);
-            int priority = Integer.parseInt(parts[3]);
+                int id = Integer.parseInt(parts[0]);
+                int arrivalTime = Integer.parseInt(parts[1]);
+                int burstTime = Integer.parseInt(parts[2]);
+                int priority = Integer.parseInt(parts[3]);
         
             Process process = new Process(id, arrivalTime, burstTime, priority);
             processes.add(process);
-        }
-                // Parse the line and create Process objects
-                // Add the processes to the queue
+        } else {
+            System.err.println("Invalid data format in file: " + line);
             }
+        }
 
             scanner.close();
         } catch (FileNotFoundException e) {
