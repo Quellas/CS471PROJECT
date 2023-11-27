@@ -165,9 +165,12 @@ public static void runPriority(Queue<Process> processes, int processesExecuted, 
 
     // Function to save results to output file
     public static void saveResultsToFile(int totalProcesses, int totalBurstTime, double throughput, double cpuUtilization,
-                                         double avgWaitingTime, double avgTurnaroundTime, double avgResponseTime) {
-        try {
-            PrintWriter writer = new PrintWriter("sampleoutput.txt");
+                                         double avgWaitingTime, double avgTurnaroundTime, double avgResponseTime) {                                    
+           try {
+            // Debug print statements to check values before writing to the file
+            System.out.println("Number of processes: " + totalProcesses);
+            System.out.println("Total elapsed time: " + totalBurstTime);
+            PrintWriter writer = new PrintWriter("SampleOutput.txt");
             writer.println("Statistics for the Run:");
             writer.println("Number of processes: " + totalProcesses);
             writer.println("Total elapsed time: " + totalBurstTime);
