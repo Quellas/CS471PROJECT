@@ -1,4 +1,3 @@
-package CPUSCHED;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -26,29 +25,29 @@ class Process {
 public class Main {
     public static void main(String[] args) {
         Queue<Process> processes = new LinkedList<>();
-        int processesExecuted = 0;
-        int totalBurstTime = 0;
-        int totalWaitingTime = 0;
-        int totalTurnaroundTime = 0;
+        int[] statistics = new int[4]; // To hold processesExecuted, totalBurstTime, totalWaitingTime, totalTurnaroundTime
 
         try {
             Scanner scanner = new Scanner(new File("datafile1.txt"));
+            scanner.nextLine(); // Skip the header line
 
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-                String[] parts = line.split("\t");
+                String[] parts = line.trim().split("\\s+");
+                if (parts.length == 1) {
+                parts = line.trim().split("\\t");
+                }
     
-            if (parts.length == 4) { // Ensure there are enough fields in the line
-                int id = Integer.parseInt(parts[0]);
-                int arrivalTime = Integer.parseInt(parts[1]);
-                int burstTime = Integer.parseInt(parts[2]);
-                int priority = Integer.parseInt(parts[3]);
-        
-            Process process = new Process(id, arrivalTime, burstTime, priority);
-            processes.add(process);
-        } else {
-            System.err.println("Invalid data format in file: " + line);
-            }
+                if (parts.length == 3) { // Ensure there are exactly three fields in the line
+                    int arrivalTime = Integer.parseInt(parts[0]);
+                    int burstTime = Integer.parseInt(parts[1]);
+                    int priority = Integer.parseInt(parts[2]);
+            
+                    Process process = new Process(0, arrivalTime, burstTime, priority);
+                    processes.add(process);
+                } else {
+                    System.err.println("Invalid data format in file: " + line);
+                }
         }
 
             scanner.close();
@@ -57,43 +56,43 @@ public class Main {
         }
 
         
-    // Run scheduling algorithms and calculate statistics
-    processesExecuted = runFIFO(processes, processesExecuted, totalBurstTime, totalWaitingTime, totalTurnaroundTime);
-    int processesExecutedSJF = processesExecuted; // Store the initial value of processesExecuted for SJF
-    totalBurstTime = runSJF(processes, processesExecuted, totalBurstTime, totalWaitingTime, totalTurnaroundTime);
-    int processesExecutedPriority = processesExecuted; // Store the initial value of processesExecuted for Priority
-    runPriority(processes, processesExecuted, totalBurstTime, totalWaitingTime, totalTurnaroundTime);
+    runFIFO(new LinkedList<>(processes), statistics);
+    int processesExecutedSJF = statistics[0];
+    int totalBurstTimeSJF = statistics[1];
+    runSJF(new LinkedList<>(processes), statistics);
+    int processesExecutedPriority = statistics[0];
+    int totalBurstTimePriority = statistics[1];
+    runPriority(new LinkedList<>(processes), statistics);
 
-    // Calculate statistics
-    int totalProcesses = processesExecuted;
-    double throughput = (double) totalProcesses / totalBurstTime;
-    double avgWaitingTime = (double) totalWaitingTime / totalProcesses;
-    double avgTurnaroundTime = (double) totalTurnaroundTime / totalProcesses;
-    double avgResponseTime = avgWaitingTime; // Assuming response time is the same as waiting time
+    int totalProcesses = statistics[0];
+    double throughputFIFO = (double) totalProcesses / statistics[1];
+    double throughputSJF = (double) totalProcesses / totalBurstTimeSJF;
+    double throughputPriority = (double) totalProcesses / totalBurstTimePriority;
+    double avgWaitingTimeFIFO = (double) statistics[2] / totalProcesses;
+    double avgTurnaroundTimeFIFO = (double) statistics[3] / totalProcesses;
+    double avgResponseTimeFIFO = avgWaitingTimeFIFO;
 
-    // Calculate CPU utilization for each scheduling algorithm separately
-    double cpuUtilizationFIFO = (double) totalBurstTime / totalProcesses;
-    double cpuUtilizationSJF = (double) totalBurstTime / processesExecutedSJF;
-    double cpuUtilizationPriority = (double) totalBurstTime / processesExecutedPriority;
-
-    // Print or use CPU utilizations for each algorithm
-    System.out.println("CPU Utilization for FIFO: " + cpuUtilizationFIFO);
-    System.out.println("CPU Utilization for SJF: " + cpuUtilizationSJF);
-    System.out.println("CPU Utilization for Priority: " + cpuUtilizationPriority);
+    // Use or store these variables for later use
+    System.out.println("Processes Executed SJF: " + processesExecutedSJF);
+    System.out.println("Processes Executed Priority: " + processesExecutedPriority);
+    System.out.println("Throughput SJF: " + throughputSJF);
+    System.out.println("Throughput Priority: " + throughputPriority);
 
     // Save results to output file
-    saveResultsToFile(totalProcesses, totalBurstTime, throughput, cpuUtilizationFIFO, avgWaitingTime, avgTurnaroundTime, avgResponseTime);
+    saveResultsToFile(totalProcesses, statistics[1], throughputFIFO, avgWaitingTimeFIFO, avgTurnaroundTimeFIFO, avgResponseTimeFIFO);
         
     }
 
-    public static int runFIFO(Queue<Process> processes, int processesExecuted, int totalBurstTime, int totalWaitingTime, int totalTurnaroundTime) {
-        Queue<Process> readyQueue = new LinkedList<>();
+    public static void runFIFO(Queue<Process> processes, int[] statistics) {
+        int processesExecuted = 0;
+        int totalBurstTime = 0;
+        int totalWaitingTime = 0;
+        int totalTurnaroundTime = 0;
         int currentTime = 0;
 
         while (!processes.isEmpty() && processesExecuted < 500) {
             Process currentProcess = processes.poll();
             if (currentProcess.arrivalTime <= currentTime) {
-                readyQueue.add(currentProcess);
                 totalWaitingTime += currentTime - currentProcess.arrivalTime;
                 currentTime += currentProcess.burstTime;
                 totalBurstTime += currentProcess.burstTime;
@@ -102,84 +101,105 @@ public class Main {
             }
         }
 
-        return processesExecuted;
+        // Update statistics array with the values at the end of FIFO scheduling
+        statistics[0] = processesExecuted;
+        statistics[1] = totalBurstTime;
+        statistics[2] = totalWaitingTime;
+        statistics[3] = totalTurnaroundTime;
     }
     
-    public static int runSJF(Queue<Process> processes, int processesExecuted, int totalBurstTime, int totalWaitingTime, int totalTurnaroundTime) {
-    List<Process> arrivalProcesses = new ArrayList<>(processes);
-    Queue<Process> readyQueue = new LinkedList<>();
-    int currentTime = 0;
+    public static void runSJF(Queue<Process> processes, int[] statistics) {
+        int processesExecuted = 0;
+        int totalBurstTime = 0;
+        int totalWaitingTime = 0;
+        int totalTurnaroundTime = 0;
+        int currentTime = 0;
 
-    while (processesExecuted < 500) {
-        Process shortestJob = null;
-        int shortestBurst = Integer.MAX_VALUE;
+        List<Process> arrivalProcesses = new ArrayList<>(processes);
 
-        for (Process process : arrivalProcesses) {
-            if (process.arrivalTime <= currentTime && process.burstTime < shortestBurst) {
-                shortestJob = process;
-                shortestBurst = process.burstTime;
+        while (processesExecuted < 500) {
+            Process shortestJob = null;
+            int shortestBurst = Integer.MAX_VALUE;
+
+            for (Process process : arrivalProcesses) {
+                if (process.arrivalTime <= currentTime && process.burstTime < shortestBurst) {
+                    shortestJob = process;
+                    shortestBurst = process.burstTime;
+                }
+            }
+
+            if (shortestJob != null) {
+                totalWaitingTime += currentTime - shortestJob.arrivalTime;
+                currentTime += shortestJob.burstTime;
+                totalBurstTime += shortestJob.burstTime;
+                totalTurnaroundTime += currentTime - shortestJob.arrivalTime;
+                processesExecuted++;
+                arrivalProcesses.remove(shortestJob); // Remove the processed job from the list
+            } else {
+                currentTime++; // No job available, move to the next time unit
             }
         }
 
-        if (shortestJob != null) {
-            readyQueue.add(shortestJob);
-            totalWaitingTime += currentTime - shortestJob.arrivalTime;
-            currentTime += shortestJob.burstTime;
-            totalBurstTime += shortestJob.burstTime;
-            totalTurnaroundTime += currentTime - shortestJob.arrivalTime;
-            processesExecuted++;
-            arrivalProcesses.remove(shortestJob); // Remove the processed job from the list
-        } else {
-            currentTime++; // No job available, move to the next time unit
-        }
+        // Update statistics array with the values at the end of SJF scheduling
+        statistics[0] = processesExecuted;
+        statistics[1] = totalBurstTime;
+        statistics[2] = totalWaitingTime;
+        statistics[3] = totalTurnaroundTime;
     }
 
-    return processesExecuted;
-}
+    public static void runPriority(Queue<Process> processes, int[] statistics) {
+        int processesExecuted = 0;
+        int totalBurstTime = 0;
+        int totalWaitingTime = 0;
+        int totalTurnaroundTime = 0;
+        int currentTime = 0;
 
-public static void runPriority(Queue<Process> processes, int processesExecuted, int totalBurstTime, int totalWaitingTime, int totalTurnaroundTime) {
-    List<Process> arrivalProcesses = new ArrayList<>(processes);
-    PriorityQueue<Process> readyQueue = new PriorityQueue<>((p1, p2) -> p1.priority - p2.priority);
-    int currentTime = 0;
+        List<Process> arrivalProcesses = new ArrayList<>(processes);
+        PriorityQueue<Process> readyQueue = new PriorityQueue<>((p1, p2) -> p1.priority - p2.priority);
 
-    while (processesExecuted < 500) {
-        for (Process process : arrivalProcesses) {
-            if (process.arrivalTime <= currentTime) {
-                readyQueue.add(process);
+        while (processesExecuted < 500) {
+            for (Process process : arrivalProcesses) {
+                if (process.arrivalTime <= currentTime) {
+                    readyQueue.add(process);
+                }
+            }
+
+            if (!readyQueue.isEmpty()) {
+                Process highPriorityProcess = readyQueue.poll();
+                totalWaitingTime += currentTime - highPriorityProcess.arrivalTime;
+                currentTime += highPriorityProcess.burstTime;
+                totalBurstTime += highPriorityProcess.burstTime;
+                totalTurnaroundTime += currentTime - highPriorityProcess.arrivalTime;
+                processesExecuted++;
+                arrivalProcesses.remove(highPriorityProcess); // Remove the processed job from the list
+            } else {
+                currentTime++; // No job available, move to the next time unit
             }
         }
 
-        if (!readyQueue.isEmpty()) {
-            Process highPriorityProcess = readyQueue.poll();
-            totalWaitingTime += currentTime - highPriorityProcess.arrivalTime;
-            currentTime += highPriorityProcess.burstTime;
-            totalBurstTime += highPriorityProcess.burstTime;
-            totalTurnaroundTime += currentTime - highPriorityProcess.arrivalTime;
-            processesExecuted++;
-            arrivalProcesses.remove(highPriorityProcess); // Remove the processed job from the list
-        } else {
-            currentTime++; // No job available, move to the next time unit
-        }
+        // Update statistics array with the values at the end of Priority scheduling
+        statistics[0] = processesExecuted;
+        statistics[1] = totalBurstTime;
+        statistics[2] = totalWaitingTime;
+        statistics[3] = totalTurnaroundTime;
     }
-}
 
     // Function to save results to output file
-    public static void saveResultsToFile(int totalProcesses, int totalBurstTime, double throughput, double cpuUtilization,
-                                         double avgWaitingTime, double avgTurnaroundTime, double avgResponseTime) {                                    
-           try {
-            // Debug print statements to check values before writing to the file
-            System.out.println("Number of processes: " + totalProcesses);
-            System.out.println("Total elapsed time: " + totalBurstTime);
-            PrintWriter writer = new PrintWriter("SampleOutput.txt");
+    public static void saveResultsToFile(int totalProcesses, int totalBurstTime, double throughput,
+                                         double avgWaitingTime, double avgTurnaroundTime, double avgResponseTime) {
+        try {
+            String filePath = "SampleOutput.txt"; // Relative path
+            System.out.println("Creating file at: " + filePath); // Debug print
+            PrintWriter writer = new PrintWriter(filePath);
             writer.println("Statistics for the Run:");
             writer.println("Number of processes: " + totalProcesses);
             writer.println("Total elapsed time: " + totalBurstTime);
             writer.println("Throughput: " + throughput);
-            writer.println("CPU utilization: " + cpuUtilization);
             writer.println("Average waiting time: " + avgWaitingTime);
             writer.println("Average turnaround time: " + avgTurnaroundTime);
             writer.println("Average response time: " + avgResponseTime);
             writer.close();
+            System.out.println("File creation successful."); // Debug print
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

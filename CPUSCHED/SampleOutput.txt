@@ -1,0 +1,7 @@
+Statistics for the Run:
+Number of processes: 500
+Total elapsed time: 10027
+Throughput: 0.04986536351850005
+Average waiting time: 404.838
+Average turnaround time: 424.892
+Average response time: 404.838
