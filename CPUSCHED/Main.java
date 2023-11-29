@@ -116,19 +116,17 @@ public class Main {
         int currentTime = 0;
 
         List<Process> arrivalProcesses = new ArrayList<>(processes);
+        PriorityQueue<Process> readyQueue = new PriorityQueue<>((p1, p2) -> p1.burstTime - p2.burstTime);
 
         while (processesExecuted < 500) {
-            Process shortestJob = null;
-            int shortestBurst = Integer.MAX_VALUE;
-
             for (Process process : arrivalProcesses) {
-                if (process.arrivalTime <= currentTime && process.burstTime < shortestBurst) {
-                    shortestJob = process;
-                    shortestBurst = process.burstTime;
+                if (process.arrivalTime <= currentTime) {
+                    readyQueue.add(process);
                 }
             }
-
-            if (shortestJob != null) {
+    
+            if (!readyQueue.isEmpty()) {
+                Process shortestJob = readyQueue.poll();
                 totalWaitingTime += currentTime - shortestJob.arrivalTime;
                 currentTime += shortestJob.burstTime;
                 totalBurstTime += shortestJob.burstTime;
