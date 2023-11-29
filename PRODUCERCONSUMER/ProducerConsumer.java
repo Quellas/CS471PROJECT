@@ -62,7 +62,7 @@ public class ProducerConsumer {
             try {
                 Thread.sleep(1000);
                 Random random = new Random();
-                int randomProduced = random.nextInt();
+                int randomProduced = random.nextInt(100);
                 if (insertItem(randomProduced) != 0) {
                     System.out.println("Fail to insert item");
                 }
