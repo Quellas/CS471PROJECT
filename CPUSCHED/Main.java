@@ -78,8 +78,21 @@ public class Main {
     System.out.println("Throughput SJF: " + throughputSJF);
     System.out.println("Throughput Priority: " + throughputPriority);
 
-    // Save results to output file
-    saveResultsToFile(totalProcesses, statistics[1], throughputFIFO, avgWaitingTimeFIFO, avgTurnaroundTimeFIFO, avgResponseTimeFIFO);
+    // Save results to initial output file
+    saveResultsToFile("SampleOutput.txt", totalProcesses, statistics[1], throughputFIFO, avgWaitingTimeFIFO, avgTurnaroundTimeFIFO, avgResponseTimeFIFO);
+    System.out.println("Initial results saved to SampleOutput.txt.");
+
+    // Save results for FIFO scheduling to a separate file
+    saveResultsToFile("FIFOOutput.txt", statistics[0], statistics[1], throughputFIFO, (double) statistics[2] / statistics[0], (double) statistics[3] / statistics[0], (double) statistics[2] / statistics[0]);
+    System.out.println("FIFO results saved to FIFOOutput.txt.");
+
+    // Save results for SJF scheduling to a separate file
+    saveResultsToFile("SJFOutput.txt", statistics[0], totalBurstTimeSJF, throughputSJF, (double) statistics[2] / statistics[0], (double) statistics[3] / statistics[0], (double) statistics[2] / statistics[0]);
+    System.out.println("SJF results saved to SJFOutput.txt.");
+
+    // Save results for Priority scheduling to a separate file
+    saveResultsToFile("PriorityOutput.txt", statistics[0], totalBurstTimePriority, throughputPriority, (double) statistics[2] / statistics[0], (double) statistics[3] / statistics[0], (double) statistics[2] / statistics[0]);
+    System.out.println("Priority results saved to PriorityOutput.txt.");
         
     }
 
@@ -183,24 +196,23 @@ public class Main {
     }
 
     // Function to save results to output file
-    public static void saveResultsToFile(int totalProcesses, int totalBurstTime, double throughput,
-                                         double avgWaitingTime, double avgTurnaroundTime, double avgResponseTime) {
-        try {
-            String filePath = "SampleOutput.txt"; // Relative path
-            System.out.println("Creating file at: " + filePath); // Debug print
-            PrintWriter writer = new PrintWriter(filePath);
-            writer.println("Statistics for the Run:");
-            writer.println("Number of processes: " + totalProcesses);
-            writer.println("Total elapsed time: " + totalBurstTime);
-            writer.println("Throughput: " + throughput);
-            writer.println("Average waiting time: " + avgWaitingTime);
-            writer.println("Average turnaround time: " + avgTurnaroundTime);
-            writer.println("Average response time: " + avgResponseTime);
-            writer.close();
-            System.out.println("File creation successful."); // Debug print
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+    public static void saveResultsToFile(String fileName, int totalProcesses, int totalBurstTime, double throughput,
+                                     double avgWaitingTime, double avgTurnaroundTime, double avgResponseTime) {
+    try {
+        System.out.println("Creating file at: " + fileName); // Debug print
+        PrintWriter writer = new PrintWriter(fileName);
+        writer.println("Statistics for the Run:");
+        writer.println("Number of processes: " + totalProcesses);
+        writer.println("Total elapsed time: " + totalBurstTime);
+        writer.println("Throughput: " + throughput);
+        writer.println("Average waiting time: " + avgWaitingTime);
+        writer.println("Average turnaround time: " + avgTurnaroundTime);
+        writer.println("Average response time: " + avgResponseTime);
+        writer.close();
+        System.out.println("File creation successful."); // Debug print
+    } catch (FileNotFoundException e) {
+        e.printStackTrace();
     }
+}
 
 }
