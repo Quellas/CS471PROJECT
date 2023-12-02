@@ -1,0 +1,22 @@
+Producer produced item: 73 count: 1
+Producer produced item: 7 count: 2
+Producer produced item: 2 count: 3
+Producer produced item: 46 count: 4
+Producer produced item: 93 count: 5
+Consumer consumed item: 73 count: 4
+Consumer consumed item: 7 count: 3
+Consumer consumed item: 2 count: 2
+Consumer consumed item: 46 count: 1
+Producer produced item: 20 count: 2
+Producer produced item: 81 count: 3
+Producer produced item: 75 count: 4
+Producer produced item: 94 count: 5
+Consumer consumed item: 93 count: 4
+Consumer consumed item: 20 count: 3
+Consumer consumed item: 81 count: 2
+Consumer consumed item: 75 count: 1
+Producer produced item: 14 count: 2
+Producer produced item: 22 count: 3
+Producer produced item: 42 count: 4
+Producer produced item: 52 count: 5
+Overall turnaround time: 3012 milliseconds
