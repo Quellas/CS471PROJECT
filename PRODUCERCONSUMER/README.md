@@ -36,7 +36,9 @@ output_sleep_6000ms.txt
 
 ## Result's summary and explanation:
 1 As we can see from the output file,the turnaround time is different for different sleep time,the number of producers and consumers.
-2 The more producers are,more items are produced,which increase the payload of the buffer,so the turnaround time is longer.
-Similarly,the more consumers are,more items are consumed,which can also affect the turnaround time.
-3 The wait time affect the turnaround time greatly, and choosing a proper wait time can make all processes to complete smoothly.
+
+2 The more producers are,more items are produced,which increase the payload of the buffer,so the turnaround time is longer.  
+Similarly,the more consumers are,more items are consumed,which can also affect the turnaround time.  
+
+3 The wait time affect the turnaround time greatly, and choosing a proper wait time can make all processes to complete smoothly.  
 
