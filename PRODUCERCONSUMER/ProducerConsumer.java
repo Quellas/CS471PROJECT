@@ -1,4 +1,6 @@
 package PRODUCERCONSUMER;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.Semaphore;
@@ -16,8 +18,8 @@ public class ProducerConsumer {
     private static int producerThreads = 0;
     private static int consumerThreads = 0;
 
-    public static void main(String[] args) throws InterruptedException {
-
+    public static void main(String[] args) throws InterruptedException, IOException {
+        // Get user input for sleep time, producer threads, and consumer threads
          Scanner sc = new Scanner(System.in);
          System.out.println("Enter sleep time in milliseconds: ");
          sleepTime = sc.nextInt();
@@ -26,17 +28,22 @@ public class ProducerConsumer {
          System.out.println("Enter number of consumer threads: ");
          consumerThreads = sc.nextInt();
 
+        redirectOutputToFile("output_sleep_" + sleepTime + "ms.csv");
+
+         // Record start time
          long startTime = System.currentTimeMillis();
          if (sleepTime < 0 || producerThreads < 0 || consumerThreads < 0) {
              System.out.println("Please enter 3 positive integers");
              return;
          }
 
+        // Create producer threads
          for (int i = 0; i < producerThreads; i++) {
              Thread producerThread = new Thread(Producer);
              producerThread.start();
          }
 
+        // Create consumer threads
          for (int i = 0; i < consumerThreads; i++) {
              Thread consumerThread = new Thread(Consumer);
              consumerThread.start();
@@ -49,14 +56,17 @@ public class ProducerConsumer {
              e.printStackTrace();
          }
 
+        // Calculate and print overall turnaround time
          long turnaroundTime = 0l;
          long endTime = System.currentTimeMillis();
          turnaroundTime = endTime - startTime;
          System.out.println("Overall turnaround time: " + turnaroundTime + " milliseconds");
 
+        // Exit the program
         System.exit(0);
     }
 
+    // Producer thread logic
      static Runnable Producer = () -> {
         while (true) {
             try {
@@ -72,7 +82,7 @@ public class ProducerConsumer {
 
         }
     };
-
+    // Consumer thread logic
     private static Runnable Consumer = () -> {
         while (true) {
             try {
@@ -88,6 +98,7 @@ public class ProducerConsumer {
         }
     };
 
+    // Insert item into the buffer
     static int insertItem(int item) throws InterruptedException {
         semFull.acquire();
         mutex.acquire();
@@ -108,7 +119,7 @@ public class ProducerConsumer {
         return 0;
     }
 
-
+    // Remove item from the buffer
      static int removeItem(int[] item) throws InterruptedException {
         semEmpty.acquire();
         mutex.acquire();
@@ -128,4 +139,14 @@ public class ProducerConsumer {
         semFull.release();
         return 0;
     }
+
+    private static void redirectOutputToFile(String filename) {
+        try {
+            PrintStream fileStream = new PrintStream(filename);
+            System.setOut(fileStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }
