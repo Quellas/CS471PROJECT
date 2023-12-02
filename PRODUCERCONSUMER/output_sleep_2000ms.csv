@@ -1,0 +1,6 @@
+Producer produced item: 34 count: 1
+Producer produced item: 59 count: 2
+Producer produced item: 29 count: 3
+Producer produced item: 50 count: 4
+Consumer consumed item: 34 count: 3
+Overall turnaround time: 2012 milliseconds
