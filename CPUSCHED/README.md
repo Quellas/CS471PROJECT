@@ -1,3 +1,9 @@
+# #CS471 PROJECT - PROBLEM 1
+
+#AUTHOR
+
+WILLIAM GLAVIN
+
 # CPU Scheduling Simulation
 
 This Java program simulates CPU scheduling algorithms using a collection of classes and methods. The program's primary functionalities are:
